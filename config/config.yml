@@ -1,4 +1,4 @@
 rabbitmq:
-  host: rmqnlbdev.mtvi.com:15672
-  user: oestga
-  password: viacom$1
+  host:
+  user:
+  password:
