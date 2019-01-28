@@ -22,22 +22,22 @@ class RabbitmqAPIUtils:
         return r
 
     def get_overview(self):
-        logger.info("Call RabbitMQ api... {}".format(self.url))
         url_method = self.url
         url_method += 'overview'
+        logger.info("Call RabbitMQ api... {}".format(url_method))
         r = requests.get(url_method, auth=(self.user, self.password))
         return r
 
     def get_connections(self):
-        logger.info("Call RabbitMQ api... {}".format(self.url))
         url_method = self.url
         url_method += 'connections'
+        logger.info("Call RabbitMQ api... {}".format(url_method))
         r = requests.get(url_method, auth=(self.user, self.password))
         return r
 
     def get_queues(self):
-        logger.info("Call RabbitMQ api... {}".format(self.url))
         url_method = self.url
         url_method += 'queues'
+        logger.info("Call RabbitMQ api... {}".format(url_method))
         r = requests.get(url_method, auth=(self.user, self.password))
         return r
