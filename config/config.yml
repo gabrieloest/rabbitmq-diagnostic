@@ -1,4 +1,4 @@
 rabbitmq:
-  host:
-  user:
-  password:
+  host: 166.77.184.20:15672
+  user: oestga
+  password: viacom$1
