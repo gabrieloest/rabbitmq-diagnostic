@@ -21,6 +21,9 @@ logger.info('password: {}'.format(password))
 rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(host, user, password)
 
 
+overview = list(rmq_utils.get_overview().json())
+
+
 def no_consumers_queues_report(queues):
     queues_no_conumers = list(filter(lambda item: (item['consumers'] == 0),
                                      queues.json()))
@@ -35,10 +38,10 @@ def no_consumers_queues_report(queues):
 
 def high_ready_messages_queues(queues):
     high_messages = list(filter(lambda item: (item['messages_ready'] > 50),
-                                     queues.json()))
+                                queues.json()))
 
     for item in high_messages:
-        print("Queue {} of vhost {} don't have a high number of"
+        print("Queue {} of vhost {} have a high number of "
               "ready messages: {}.".format(item['name'], item['vhost'],
                                            item['messages_ready']))
 
@@ -46,10 +49,26 @@ def high_ready_messages_queues(queues):
           'messages'.format(len(high_messages)))
 
 
+def high_messages_unacknowledged_queues(queues):
+    messages_unacknowledged = list(filter(lambda item: (
+                                          item['messages_unacknowledged'] > 0),
+                                          queues.json()))
+
+    for item in messages_unacknowledged:
+        print("Queue {} of vhost {} have a high number of "
+              "messages unacknowledged: {}."
+              .format(item['name'], item['vhost'],
+                      item['messages_unacknowledged']))
+
+    print('{} queues with high number of messages '
+          'unacknowledged'.format(len(messages_unacknowledged)))
+
+
 queues = rmq_utils.get_queues()
 
 no_consumers_queues_report(queues)
 high_ready_messages_queues(queues)
+high_messages_unacknowledged_queues(queues)
 
 nodes = list(rmq_utils.get_nodes().json())
 
@@ -114,9 +133,25 @@ def alert_mem_free(node):
     print(mem_result)
 
 
+def alert_erlang_process(node):
+    proc_used = node['proc_used']
+    proc_total = node['proc_total']
+    proc_usage_percent = (proc_used * 100) / proc_total
+    proc_result = 'Erlang processes used Alert '
+    if(proc_usage_percent > 90 and proc_usage_percent < 98):
+        proc_result += 'Warning: {}'.format(proc_usage_percent)
+    elif(proc_usage_percent > 98):
+        proc_result += 'Critical: {}'.format(proc_usage_percent)
+    else:
+        proc_result += 'OK: {}'.format(proc_usage_percent)
+
+    print(proc_result)
+
+
 for node in nodes:
     print('Node {} metrics: '.format(node['name']))
     alert_file_description(node)
     alert_files_description_as_sockets(node)
     alert_disk_free(node)
     alert_mem_free(node)
+    alert_erlang_process(node)
