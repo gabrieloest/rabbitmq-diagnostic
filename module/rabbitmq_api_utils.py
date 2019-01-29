@@ -18,7 +18,9 @@ class RabbitmqAPIUtils:
         url_method = self.url
         url_method += 'nodes'
         logger.info("Call RabbitMQ api... {}".format(url_method))
-        r = requests.get(url_method, auth=(self.user, self.password))
+
+        r = requests.get(url_method, auth=(self.user, self.password),
+                         headers=self.headers, verify=False)
         return r
 
     def get_overview(self):
