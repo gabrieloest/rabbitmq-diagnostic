@@ -30,7 +30,7 @@ def no_consumers_queues_report(queues):
 
     print('Queues without consumers: ')
     for item in queues_no_conumers:
-        print("Queue {} of vhost {} don't have"
+        print("Queue {} of vhost {} does not have "
               "any consumer.".format(item['name'], item['vhost']))
 
     print('{} withou consumers'.format(len(queues_no_conumers)))
@@ -41,7 +41,7 @@ def high_ready_messages_queues(queues):
                                 queues.json()))
 
     for item in high_messages:
-        print("Queue {} of vhost {} have a high number of "
+        print("Queue {} of vhost {} has a high number of "
               "ready messages: {}.".format(item['name'], item['vhost'],
                                            item['messages_ready']))
 
@@ -55,7 +55,7 @@ def high_messages_unacknowledged_queues(queues):
                                           queues.json()))
 
     for item in messages_unacknowledged:
-        print("Queue {} of vhost {} have a high number of "
+        print("Queue {} of vhost {} has a high number of "
               "messages unacknowledged: {}."
               .format(item['name'], item['vhost'],
                       item['messages_unacknowledged']))
