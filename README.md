@@ -1,6 +1,6 @@
 # rabbitmq-diagnostic
 
-Create file config/config.yml with the following content:
+Create file config/server-config.yml with the following content:
 ```
 rabbitmq:
   host:
