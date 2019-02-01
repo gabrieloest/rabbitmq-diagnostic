@@ -5,10 +5,16 @@ conditions:
         messages_unroutable: 0
     node:
         nodes_running: 1
-        file_descriptors_used: 0
-        file_descriptors_used_as_sockets: 0
-        disk_space_used: 0
-        memory_used: 100
+        file_descriptors_used_percent_warn: 90
+        file_descriptors_used_percent_critical: 98
+        file_descriptors_used_as_sockets_percent_warn: 90
+        file_descriptors_used_as_sockets_percent_critical: 98
+        disk_space_used_percent_warn: 90
+        disk_space_used_percent_critical: 98
+        memory_used_percent_warn: 90
+        memory_used_percent_critical: 98
+        erlang_process_percent_warn: 90
+        erlang_process_percent_critical: 98
     connection:
         consumers_connected: 1
         open_connections: 1

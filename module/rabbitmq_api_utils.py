@@ -10,7 +10,7 @@ class RabbitmqAPIUtils:
     headers = {'Content-type': 'application/json'}
 
     def __init__(self, host, user, password):
-        self.user = user
+        self.useresponse = user
         self.password = password
         self.url = 'http://{}/api/'.format(host)
 
@@ -18,28 +18,27 @@ class RabbitmqAPIUtils:
         url_method = self.url
         url_method += 'nodes'
         logger.info("Call RabbitMQ api... {}".format(url_method))
-
-        r = requests.get(url_method, auth=(self.user, self.password),
-                         headers=self.headers, verify=False)
-        return r
+        response = requests.get(url_method, auth=(self.user, self.password),
+                                headers=self.headers, verify=False)
+        return response
 
     def get_overview(self):
         url_method = self.url
         url_method += 'overview'
         logger.info("Call RabbitMQ api... {}".format(url_method))
-        r = requests.get(url_method, auth=(self.user, self.password))
-        return r
+        response = requests.get(url_method, auth=(self.user, self.password))
+        return response
 
     def get_connections(self):
         url_method = self.url
         url_method += 'connections'
         logger.info("Call RabbitMQ api... {}".format(url_method))
-        r = requests.get(url_method, auth=(self.user, self.password))
-        return r
+        response = requests.get(url_method, auth=(self.user, self.password))
+        return response
 
     def get_queues(self):
         url_method = self.url
         url_method += 'queues'
         logger.info("Call RabbitMQ api... {}".format(url_method))
-        r = requests.get(url_method, auth=(self.user, self.password))
-        return r
+        response = requests.get(url_method, auth=(self.user, self.password))
+        return response
