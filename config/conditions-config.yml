@@ -1,9 +1,24 @@
 conditions:
-    ready_queue_size: 0
-    unack_queue_size: 0
-    total_queue_size: 0
-    consumers_connected: 1
-    queue_consumers_connected: 1
-    open_connections: 1
-    nodes_running: 1
-    node_memory_used: 100
+    exchange:
+        messages_published_in: 0
+        messages_published_out: 0
+        messages_unroutable: 0
+    node:
+        nodes_running: 1
+        file_descriptors_used: 0
+        file_descriptors_used_as_sockets: 0
+        disk_space_used: 0
+        memory_used: 100
+    connection:
+        consumers_connected: 1
+        open_connections: 1
+        data_rates: 0
+    queue:
+        depth: 0
+        messages_unacknowledged: 0
+        messages_ready: 0
+        messages_rate: 0
+        messages_persistent: 0
+        messages_bytes_persistent: 0
+        messages_bytes_ram: 0
+        consumers_connected: 1
