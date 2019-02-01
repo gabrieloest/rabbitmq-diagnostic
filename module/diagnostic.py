@@ -1,31 +1,22 @@
 import logging
-import yaml
+import configresolver
 import rabbitmq_api_utils
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-logger.info('Loading configurations....')
-with open("./config/config.yml", 'r') as ymlfile:
-    cfg = yaml.load(ymlfile)
+config = configresolver.ConfigResolver(logger)
+server_config = config.load_server_config()
 
-rabbitmq = cfg['rabbitmq']
-host = rabbitmq['host']
-user = rabbitmq['user']
-password = rabbitmq['password']
-
-logger.info('host: {}'.format(host))
-logger.info('user: {}'.format(user))
-logger.info('password: {}'.format(password))
-
-rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(host, user, password)
-
+rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['host'],
+                                                server_config['user'],
+                                                server_config['password'])
 
 overview = list(rmq_utils.get_overview().json())
 
 
-def no_consumers_queues_report(queues):
-    queues_no_conumers = list(filter(lambda item: (item['consumers'] == 0),
+def no_consumers_queues_report(queues, conditions):
+    queues_no_conumers = list(filter(lambda item: (item['consumers'] < conditions['consumers_connected']),
                                      queues.json()))
 
     print('Queues without consumers: ')
@@ -36,8 +27,8 @@ def no_consumers_queues_report(queues):
     print('{} withou consumers'.format(len(queues_no_conumers)))
 
 
-def high_ready_messages_queues(queues):
-    high_messages = list(filter(lambda item: (item['messages_ready'] > 50),
+def high_ready_messages_queues(queues, conditions):
+    high_messages = list(filter(lambda item: (item['messages_ready'] > conditions['messages_ready']),
                                 queues.json()))
 
     for item in high_messages:
@@ -49,9 +40,9 @@ def high_ready_messages_queues(queues):
           'messages'.format(len(high_messages)))
 
 
-def high_messages_unacknowledged_queues(queues):
+def high_messages_unacknowledged_queues(queues, conditions):
     messages_unacknowledged = list(filter(lambda item: (
-                                          item['messages_unacknowledged'] > 0),
+                                          item['messages_unacknowledged'] > conditions['messages_unacknowledged']),
                                           queues.json()))
 
     for item in messages_unacknowledged:
@@ -63,12 +54,13 @@ def high_messages_unacknowledged_queues(queues):
     print('{} queues with high number of messages '
           'unacknowledged'.format(len(messages_unacknowledged)))
 
+conditions = config.load_conditions_config()
 
 queues = rmq_utils.get_queues()
 
-no_consumers_queues_report(queues)
-high_ready_messages_queues(queues)
-high_messages_unacknowledged_queues(queues)
+no_consumers_queues_report(queues, conditions)
+high_ready_messages_queues(queues, conditions)
+high_messages_unacknowledged_queues(queues, conditions)
 
 nodes = list(rmq_utils.get_nodes().json())
 
