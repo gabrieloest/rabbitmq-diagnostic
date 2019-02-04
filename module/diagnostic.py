@@ -1,81 +1,77 @@
 import logging
+import os
+from itertools import groupby
 import configresolver
 import rabbitmq_api_utils
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-config = configresolver.ConfigResolver(logger)
-server_config = config.load_server_config()
 
-rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['host'],
-                                                server_config['user'],
-                                                server_config['password'])
-
-overview = list(rmq_utils.get_overview().json())
-
-
-def no_consumers_queues_report(queues, conditions):
+def no_consumers_queues_report(queues, conditions, diagnostic):
+    temp_queues = queues
     queues_no_conumers = list(filter(lambda item: (
                                      item['consumers'] <
                                      conditions['consumers_connected']),
-                                     queues.json()))
+                                     temp_queues))
 
-    print('Queues without consumers: ')
+    diagnostic.write('{} queue(s) without consumers\r\n'
+                     .format(len(queues_no_conumers)))
     for item in queues_no_conumers:
-        print("Queue {} of vhost {} does not have "
-              "any consumer.".format(item['name'], item['vhost']))
+        diagnostic.write("Queue {} of vhost {} does not have "
+                         "any consumer.\r\n"
+                         .format(item['name'], item['vhost']))
+    diagnostic.write('\r\n')
 
-    print('{} withou consumers'.format(len(queues_no_conumers)))
 
-
-def high_ready_messages_queues(queues, conditions):
+def high_ready_messages_queues(queues, conditions, diagnostic):
     high_messages = list(filter(lambda item: (
                                 item['messages_ready'] >
                                 conditions['messages_ready']),
-                                queues.json()))
+                                queues))
 
+    diagnostic.write('{} queue(s) with high number of ready '
+                     'messages\r\n'.format(len(high_messages)))
     for item in high_messages:
-        print("Queue {} of vhost {} has a high number of "
-              "ready messages: {}.".format(item['name'], item['vhost'],
-                                           item['messages_ready']))
+        diagnostic.write("Queue {} of vhost {} has a high number of "
+                         "ready messages: {}.\r\n".format(item['name'],
+                                                      item['vhost'],
+                                                      item['messages_ready']))
+    diagnostic.write('\r\n')
 
-    print('{} queues with high number of ready '
-          'messages'.format(len(high_messages)))
 
-
-def high_messages_unacknowledged_queues(queues, conditions):
+def high_messages_unacknowledged_queues(queues, conditions, diagnostic):
     messages_unacknowledged = list(filter(lambda item: (
                                           item['messages_unacknowledged'] >
                                           conditions['messages_unacknowledged']),
-                                          queues.json()))
+                                          queues))
 
+    diagnostic.write('{} queue(s) with high number of messages '
+                     'unacknowledged\r\n'.format(len(messages_unacknowledged)))
     for item in messages_unacknowledged:
-        print("Queue {} of vhost {} has a high number of "
-              "messages unacknowledged: {}."
-              .format(item['name'], item['vhost'],
-                      item['messages_unacknowledged']))
-
-    print('{} queues with high number of messages '
-          'unacknowledged'.format(len(messages_unacknowledged)))
+        diagnostic.write("Queue {} of vhost {} has a high number of "
+                         "messages unacknowledged: {}.\r\n"
+                         .format(item['name'], item['vhost'],
+                                 item['messages_unacknowledged']))
+    diagnostic.write('\r\n')
 
 
 def check_alert(actual_value, total_value, warn_value,
-                          critical_value, message):
-    percent_value = (actual_value * 100) / total_value
+                critical_value, message):
+    percent_value = round((actual_value * 100) / total_value, 2)
 
     if(percent_value > warn_value and
        percent_value < critical_value):
-        message += ' Warning: {}'.format(percent_value)
+        message += ' : {}% - Warning\r\n'.format(percent_value)
     elif(percent_value > critical_value):
-        message += ' Critical: {}'.format(percent_value)
+        message += ' : {}% - Critical\r\n'.format(percent_value)
     else:
-        message += ' OK: {}'.format(percent_value)
+        message += ' : {}% - OK\r\n'.format(percent_value)
 
     return message
 
 
-def alert_file_description(node, conditions):
+def alert_file_description(node, conditions, diagnostic):
     fd_used = node['fd_used']
     fd_total = node['fd_total']
     fd_result = 'File Descriptors Alert'
@@ -84,10 +80,10 @@ def alert_file_description(node, conditions):
                           conditions['file_descriptors_used_warn'],
                           conditions['file_descriptors_used_critical'],
                           fd_result)
-    print(message)
+    diagnostic.write(message)
 
 
-def alert_files_description_as_sockets(node, conditions):
+def alert_files_description_as_sockets(node, conditions, diagnostic):
     sd_used = node['sockets_used']
     sd_total = node['sockets_total']
     sd_result = 'File Descriptors as Sockets Alert'
@@ -97,23 +93,27 @@ def alert_files_description_as_sockets(node, conditions):
                           conditions['file_descriptors_used_as_sockets_critical'],
                           sd_result)
 
-    print(message)
+    diagnostic.write(message)
 
 
-def alert_disk_free(node, conditions):
+def alert_disk_free(node, conditions, diagnostic):
     disk_free = node['disk_free']
     disk_free_limit = node['disk_free_limit']
-    df_result = 'Disk Free Alert'
+    message = 'Disk Free Limit is {} actual value is {}: ' .format(disk_free_limit, disk_free)
 
-    message = check_alert(disk_free_limit, disk_free,
-                          conditions['disk_space_used_warn'],
-                          conditions['disk_space_used_critical'],
-                          df_result)
+    disk_free_limit_critical = disk_free_limit / 2
 
-    print(message)
+    if(disk_free < disk_free_limit and disk_free > disk_free_limit_critical):
+        message += ' Warning\r\n'
+    elif(disk_free < disk_free_limit_critical):
+        message += ' Critial\r\n'
+    else:
+        message += ' OK\r\n'
+
+    diagnostic.write(message)
 
 
-def alert_mem_free(node, conditions):
+def alert_mem_free(node, conditions, diagnostic):
     mem_used = node['mem_used']
     mem_limit = node['mem_limit']
     mem_result = 'Mem Free Alert'
@@ -123,10 +123,10 @@ def alert_mem_free(node, conditions):
                           conditions['memory_used_critical'],
                           mem_result)
 
-    print(message)
+    diagnostic.write(message)
 
 
-def alert_erlang_process(node, conditions):
+def alert_erlang_process(node, conditions, diagnostic):
     proc_used = node['proc_used']
     proc_total = node['proc_total']
     proc_result = 'Erlang processes used Alert '
@@ -136,23 +136,67 @@ def alert_erlang_process(node, conditions):
                           conditions['erlang_process_critical'],
                           proc_result)
 
-    print(message)
+    diagnostic.write(message)
 
 
+# Loading server configuration
+config = configresolver.ConfigResolver(logger)
+server_config = config.load_server_config()
+
+rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['host'],
+                                                server_config['user'],
+                                                server_config['password'])
+
+# Loading performance metrics conditions
 conditions = config.load_conditions_config()
 
-queues = rmq_utils.get_queues()
+if not os.path.exists('report'):
+    os.makedirs('report')
+diagnostic = open('report/diagnostic.txt', 'w+')
 
-no_consumers_queues_report(queues, conditions)
-high_ready_messages_queues(queues, conditions)
-high_messages_unacknowledged_queues(queues, conditions)
+diagnostic.write("\r\n")
+diagnostic.write(">>>>>>>>>>> CONFIGURED CONDITIONS\r\n")
+diagnostic.write("\r\n")
+for condition, value in conditions.items():
+    diagnostic.write("- {} = {}\r\n".format(condition, value))
 
+# Consulting overview information
+overview = list(rmq_utils.get_overview().json())
+
+# Consulting queues information
+queues = list(rmq_utils.get_queues().json())
+
+groups = groupby(queues, lambda queue: queue['vhost'])
+
+# Checking queues metrics
+diagnostic.write("\r\n")
+diagnostic.write(">>>>>>>>>>>  QUEUES PERFOMANCE METRICS\r\n")
+diagnostic.write("\r\n")
+for vhost, queues in groups:
+    diagnostic.write("******************************************\r\n")
+    diagnostic.write("*******  VHOST: {}\r\n".format(vhost))
+    diagnostic.write("******************************************\r\n")
+    queues = list(queues)
+    no_consumers_queues_report(queues, conditions, diagnostic)
+    high_ready_messages_queues(queues, conditions, diagnostic)
+    high_messages_unacknowledged_queues(queues, conditions, diagnostic)
+
+# Consulting nodes information
 nodes = list(rmq_utils.get_nodes().json())
 
+# Checking alert's for each node
+diagnostic.write("\r\n")
+diagnostic.write(">>>>>>>>>>>  NODES PERFOMANCE METRICS\r\n")
+diagnostic.write("\r\n")
 for node in nodes:
-    print('Node {} metrics: '.format(node['name']))
-    alert_file_description(node, conditions)
-    alert_files_description_as_sockets(node, conditions)
-    alert_disk_free(node, conditions)
-    alert_mem_free(node, conditions)
-    alert_erlang_process(node, conditions)
+    diagnostic.write("******************************************\r\n")
+    diagnostic.write('Node {}: \r\n'.format(node['name']))
+    diagnostic.write("******************************************\r\n")
+    alert_file_description(node, conditions, diagnostic)
+    alert_files_description_as_sockets(node, conditions, diagnostic)
+    alert_disk_free(node, conditions, diagnostic)
+    alert_mem_free(node, conditions, diagnostic)
+    alert_erlang_process(node, conditions, diagnostic)
+    diagnostic.write("\r\n")
+
+diagnostic.close()
