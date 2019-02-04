@@ -16,7 +16,9 @@ overview = list(rmq_utils.get_overview().json())
 
 
 def no_consumers_queues_report(queues, conditions):
-    queues_no_conumers = list(filter(lambda item: (item['consumers'] < conditions['consumers_connected']),
+    queues_no_conumers = list(filter(lambda item: (
+                                     item['consumers'] <
+                                     conditions['consumers_connected']),
                                      queues.json()))
 
     print('Queues without consumers: ')
@@ -28,7 +30,9 @@ def no_consumers_queues_report(queues, conditions):
 
 
 def high_ready_messages_queues(queues, conditions):
-    high_messages = list(filter(lambda item: (item['messages_ready'] > conditions['messages_ready']),
+    high_messages = list(filter(lambda item: (
+                                item['messages_ready'] >
+                                conditions['messages_ready']),
                                 queues.json()))
 
     for item in high_messages:
@@ -42,7 +46,8 @@ def high_ready_messages_queues(queues, conditions):
 
 def high_messages_unacknowledged_queues(queues, conditions):
     messages_unacknowledged = list(filter(lambda item: (
-                                          item['messages_unacknowledged'] > conditions['messages_unacknowledged']),
+                                          item['messages_unacknowledged'] >
+                                          conditions['messages_unacknowledged']),
                                           queues.json()))
 
     for item in messages_unacknowledged:
@@ -53,6 +58,7 @@ def high_messages_unacknowledged_queues(queues, conditions):
 
     print('{} queues with high number of messages '
           'unacknowledged'.format(len(messages_unacknowledged)))
+
 
 conditions = config.load_conditions_config()
 
