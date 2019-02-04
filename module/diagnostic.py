@@ -60,6 +60,85 @@ def high_messages_unacknowledged_queues(queues, conditions):
           'unacknowledged'.format(len(messages_unacknowledged)))
 
 
+def check_alert(actual_value, total_value, warn_value,
+                          critical_value, message):
+    percent_value = (actual_value * 100) / total_value
+
+    if(percent_value > warn_value and
+       percent_value < critical_value):
+        message += ' Warning: {}'.format(percent_value)
+    elif(percent_value > critical_value):
+        message += ' Critical: {}'.format(percent_value)
+    else:
+        message += ' OK: {}'.format(percent_value)
+
+    return message
+
+
+def alert_file_description(node, conditions):
+    fd_used = node['fd_used']
+    fd_total = node['fd_total']
+    fd_result = 'File Descriptors Alert'
+
+    message = check_alert(fd_used, fd_total,
+                          conditions['file_descriptors_used_warn'],
+                          conditions['file_descriptors_used_critical'],
+                          fd_result)
+    print(message)
+
+
+def alert_files_description_as_sockets(node, conditions):
+    sd_used = node['sockets_used']
+    sd_total = node['sockets_total']
+    sd_result = 'File Descriptors as Sockets Alert'
+
+    message = check_alert(sd_used, sd_total,
+                          conditions['file_descriptors_used_as_sockets_warn'],
+                          conditions['file_descriptors_used_as_sockets_critical'],
+                          sd_result)
+
+    print(message)
+
+
+def alert_disk_free(node, conditions):
+    disk_free = node['disk_free']
+    disk_free_limit = node['disk_free_limit']
+    df_result = 'Disk Free Alert'
+
+    message = check_alert(disk_free_limit, disk_free,
+                          conditions['disk_space_used_warn'],
+                          conditions['disk_space_used_critical'],
+                          df_result)
+
+    print(message)
+
+
+def alert_mem_free(node, conditions):
+    mem_used = node['mem_used']
+    mem_limit = node['mem_limit']
+    mem_result = 'Mem Free Alert'
+
+    message = check_alert(mem_used, mem_limit,
+                          conditions['memory_used_warn'],
+                          conditions['memory_used_critical'],
+                          mem_result)
+
+    print(message)
+
+
+def alert_erlang_process(node, conditions):
+    proc_used = node['proc_used']
+    proc_total = node['proc_total']
+    proc_result = 'Erlang processes used Alert '
+
+    message = check_alert(proc_used, proc_total,
+                          conditions['erlang_process_warn'],
+                          conditions['erlang_process_critical'],
+                          proc_result)
+
+    print(message)
+
+
 conditions = config.load_conditions_config()
 
 queues = rmq_utils.get_queues()
@@ -69,87 +148,6 @@ high_ready_messages_queues(queues, conditions)
 high_messages_unacknowledged_queues(queues, conditions)
 
 nodes = list(rmq_utils.get_nodes().json())
-
-
-def alert_file_description(node, conditions):
-    fd_used = node['fd_used']
-    fd_total = node['fd_total']
-    fd_percent = (fd_used * 100) / fd_total
-    fd_result = 'File Descriptors Alert '
-    if(fd_percent > conditions['file_descriptors_used_warn'] and
-       fd_percent < conditions['file_descriptors_used_critical']):
-        fd_result += 'Warning: {}'.format(fd_percent)
-    elif(fd_percent > conditions['file_descriptors_used_critical']):
-        fd_result += 'Critical: {}'.format(fd_percent)
-    else:
-        fd_result += 'OK: {}'.format(fd_percent)
-
-    print(fd_result)
-
-
-def alert_files_description_as_sockets(node, conditions):
-    sd_used = node['sockets_used']
-    sd_total = node['sockets_total']
-    sd_percent = (sd_used * 100) / sd_total
-    sd_result = 'File Descriptors as Sockets Alert '
-    if(sd_percent > conditions['file_descriptors_used_as_sockets_warn'] and
-       sd_percent < conditions['file_descriptors_used_as_sockets_critical']):
-        sd_result += 'Warning: {}'.format(sd_percent)
-    elif(sd_percent > conditions['file_descriptors_used_as_sockets_critical']):
-        sd_result += 'Critical: {}'.format(sd_percent)
-    else:
-        sd_result += 'OK: {}'.format(sd_percent)
-
-    print(sd_result)
-
-
-def alert_disk_free(node, conditions):
-    disk_free = node['disk_free']
-    disk_free_limit = node['disk_free_limit']
-    disk_usage_percent = (disk_free_limit * 100) / disk_free
-    sd_result = 'Disk Free Alert '
-    if(disk_usage_percent > conditions['disk_space_used_warn'] and
-       disk_usage_percent < conditions['disk_space_used_critical']):
-        sd_result += 'Warning: {}'.format(disk_usage_percent)
-    elif(disk_usage_percent > conditions['disk_space_used_critical']):
-        sd_result += 'Critical: {}'.format(disk_usage_percent)
-    else:
-        sd_result += 'OK: {}'.format(disk_usage_percent)
-
-    print(sd_result)
-
-
-def alert_mem_free(node, conditions):
-    mem_used = node['mem_used']
-    mem_limit = node['mem_limit']
-    mem_usage_percent = (mem_used * 100) / mem_limit
-    mem_result = 'Mem Free Alert '
-    if(mem_usage_percent > conditions['memory_used_warn'] and
-       mem_usage_percent < conditions['memory_used_critical']):
-        mem_result += 'Warning: {}'.format(mem_usage_percent)
-    elif(mem_usage_percent > conditions['memory_used_critical']):
-        mem_result += 'Critical: {}'.format(mem_usage_percent)
-    else:
-        mem_result += 'OK: {}'.format(mem_usage_percent)
-
-    print(mem_result)
-
-
-def alert_erlang_process(node, conditions):
-    proc_used = node['proc_used']
-    proc_total = node['proc_total']
-    proc_usage_percent = (proc_used * 100) / proc_total
-    proc_result = 'Erlang processes used Alert '
-    if(proc_usage_percent > conditions['erlang_process_warn'] and
-       proc_usage_percent < conditions['erlang_process_critical']):
-        proc_result += 'Warning: {}'.format(proc_usage_percent)
-    elif(proc_usage_percent > conditions['erlang_process_critical']):
-        proc_result += 'Critical: {}'.format(proc_usage_percent)
-    else:
-        proc_result += 'OK: {}'.format(proc_usage_percent)
-
-    print(proc_result)
-
 
 for node in nodes:
     print('Node {} metrics: '.format(node['name']))
