@@ -139,6 +139,18 @@ def alert_erlang_process(node, conditions, diagnostic):
     diagnostic.write(message)
 
 
+def write_header(diagnostic, text):
+    diagnostic.write("\r\n")
+    diagnostic.write(">>>>>>>>>>> {}\r\n".format(text))
+    diagnostic.write("\r\n")
+
+
+def write_item_header(diagnostic, text):
+    diagnostic.write("******************************************\r\n")
+    diagnostic.write("*******  {}\r\n".format(text))
+    diagnostic.write("******************************************\r\n")
+
+
 # Loading server configuration
 config = configresolver.ConfigResolver(logger)
 server_config = config.load_server_config()
@@ -154,9 +166,7 @@ if not os.path.exists('report'):
     os.makedirs('report')
 diagnostic = open('report/diagnostic.txt', 'w+')
 
-diagnostic.write("\r\n")
-diagnostic.write(">>>>>>>>>>> CONFIGURED CONDITIONS\r\n")
-diagnostic.write("\r\n")
+write_header(diagnostic, 'CONFIGURED CONDITIONS')
 for condition, value in conditions.items():
     diagnostic.write("- {} = {}\r\n".format(condition, value))
 
@@ -169,13 +179,9 @@ queues = list(rmq_utils.get_queues().json())
 groups = groupby(queues, lambda queue: queue['vhost'])
 
 # Checking queues metrics
-diagnostic.write("\r\n")
-diagnostic.write(">>>>>>>>>>>  QUEUES PERFOMANCE METRICS\r\n")
-diagnostic.write("\r\n")
+write_header(diagnostic, 'QUEUES PERFOMANCE METRICS')
 for vhost, queues in groups:
-    diagnostic.write("******************************************\r\n")
-    diagnostic.write("*******  VHOST: {}\r\n".format(vhost))
-    diagnostic.write("******************************************\r\n")
+    write_item_header(diagnostic, 'VHOST: {}'.format(vhost))
     queues = list(queues)
     no_consumers_queues_report(queues, conditions, diagnostic)
     high_ready_messages_queues(queues, conditions, diagnostic)
@@ -185,13 +191,9 @@ for vhost, queues in groups:
 nodes = list(rmq_utils.get_nodes().json())
 
 # Checking alert's for each node
-diagnostic.write("\r\n")
-diagnostic.write(">>>>>>>>>>>  NODES PERFOMANCE METRICS\r\n")
-diagnostic.write("\r\n")
+write_header(diagnostic, 'NODES PERFOMANCE METRICS')
 for node in nodes:
-    diagnostic.write("******************************************\r\n")
-    diagnostic.write('Node {}: \r\n'.format(node['name']))
-    diagnostic.write("******************************************\r\n")
+    write_item_header(diagnostic, 'Node: {}'.format(node['name']))
     alert_file_description(node, conditions, diagnostic)
     alert_files_description_as_sockets(node, conditions, diagnostic)
     alert_disk_free(node, conditions, diagnostic)
