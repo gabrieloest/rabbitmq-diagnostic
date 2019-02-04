@@ -1,4 +1,5 @@
 config/server-config.yml
+report/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
