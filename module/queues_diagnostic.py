@@ -1,51 +1,53 @@
-
-
 class QueuesDiagnostic:
 
     def __init__(self, logger):
         self.logger = logger
 
-    def no_consumers_queues_report(self, queues, conditions, diagnostic):
-        temp_queues = queues
+    def no_consumers_queues_report(self, queues, conditions):
+        result = ''
         queues_no_conumers = list(filter(lambda item: (
                                         item['consumers'] <
                                         conditions['consumers_connected']),
-                                        temp_queues))
+                                        queues))
 
-        diagnostic.write('{} queue(s) without consumers\r\n'
-                         .format(len(queues_no_conumers)))
+        result += ('{} queue(s) without consumers\r\n'
+                   .format(len(queues_no_conumers)))
         for item in queues_no_conumers:
-            diagnostic.write("Queue {} of vhost {} does not have "
-                             "any consumer.\r\n"
-                             .format(item['name'], item['vhost']))
-        diagnostic.write('\r\n')
+            result += ("Queue {} of vhost {} does not have any consumer.\r\n"
+                       .format(item['name'], item['vhost']))
+        result += ('\r\n')
+        return result
 
-    def high_ready_messages_queues(self, queues, conditions, diagnostic):
+    def high_ready_messages_queues(self, queues, conditions):
+        result = ''
         high_messages = list(filter(lambda item: (
                                     item['messages_ready'] >
                                     conditions['messages_ready']),
                                     queues))
 
-        diagnostic.write('{} queue(s) with high number of ready '
-                         'messages\r\n'.format(len(high_messages)))
+        result += ('{} queue(s) with high number of ready '
+                   'messages\r\n'.format(len(high_messages)))
         for item in high_messages:
-            diagnostic.write("Queue {} of vhost {} has a high number of "
-                             "ready messages: {}.\r\n".format(item['name'],
-                                                              item['vhost'],
-                                                              item['messages_ready']))
-        diagnostic.write('\r\n')
+            result += ("Queue {} of vhost {} has a high number of ready "
+                       "messages: {}.\r\n".format(item['name'],
+                                                  item['vhost'],
+                                                  item['messages_ready']))
+        result += ('\r\n')
+        return result
 
-    def high_messages_unacknowledged_queues(self, queues, conditions, diagnostic):
-        messages_unacknowledged = list(filter(lambda item: (
+    def high_messages_unacknowledged_queues(self, queues, conditions):
+        result = ''
+        messages_unack = list(filter(lambda item: (
                                             item['messages_unacknowledged'] >
                                             conditions['messages_unacknowledged']),
-                                            queues))
+                                     queues))
 
-        diagnostic.write('{} queue(s) with high number of messages '
-                         'unacknowledged\r\n'.format(len(messages_unacknowledged)))
-        for item in messages_unacknowledged:
-            diagnostic.write("Queue {} of vhost {} has a high number of "
-                             "messages unacknowledged: {}.\r\n"
-                             .format(item['name'], item['vhost'],
-                                     item['messages_unacknowledged']))
-        diagnostic.write('\r\n')
+        result += ('{} queue(s) with high number of messages '
+                   'unacknowledged\r\n'.format(len(messages_unack)))
+        for item in messages_unack:
+            result += ("Queue {} of vhost {} has a high number of "
+                       "messages unacknowledged: {}.\r\n"
+                       .format(item['name'], item['vhost'],
+                               item['messages_unacknowledged']))
+        result += ('\r\n')
+        return result

@@ -55,12 +55,9 @@ write_header(diagnostic, 'QUEUES PERFOMANCE METRICS')
 for vhost, queues in groups:
     write_item_header(diagnostic, 'VHOST: {}'.format(vhost))
     queues = list(queues)
-    queues_diagnostic.no_consumers_queues_report(queues, conditions,
-                                                 diagnostic)
-    queues_diagnostic.high_ready_messages_queues(queues, conditions,
-                                                 diagnostic)
-    queues_diagnostic.high_messages_unacknowledged_queues(queues, conditions,
-                                                          diagnostic)
+    diagnostic.write(queues_diagnostic.no_consumers_queues_report(queues, conditions))
+    diagnostic.write(queues_diagnostic.high_ready_messages_queues(queues, conditions))
+    diagnostic.write(queues_diagnostic.high_messages_unacknowledged_queues(queues, conditions))
 
 # Consulting nodes information
 nodes = list(rmq_utils.get_nodes().json())
@@ -70,12 +67,11 @@ nodes_diagnostic = nodes_diagnostic.NodesDiagnostic(logger)
 write_header(diagnostic, 'NODES PERFOMANCE METRICS')
 for node in nodes:
     write_item_header(diagnostic, 'Node: {}'.format(node['name']))
-    nodes_diagnostic.alert_file_description(node, conditions, diagnostic)
-    nodes_diagnostic.alert_files_description_as_sockets(node, conditions,
-                                                        diagnostic)
-    nodes_diagnostic.alert_disk_free(node, conditions, diagnostic)
-    nodes_diagnostic.alert_mem_free(node, conditions, diagnostic)
-    nodes_diagnostic.alert_erlang_process(node, conditions, diagnostic)
+    diagnostic.write(nodes_diagnostic.alert_file_description(node, conditions))
+    diagnostic.write(nodes_diagnostic.alert_files_description_as_sockets(node, conditions))
+    diagnostic.write(nodes_diagnostic.alert_disk_free(node, conditions))
+    diagnostic.write(nodes_diagnostic.alert_mem_free(node, conditions))
+    diagnostic.write(nodes_diagnostic.alert_erlang_process(node, conditions))
     diagnostic.write("\r\n")
 
 diagnostic.close()
