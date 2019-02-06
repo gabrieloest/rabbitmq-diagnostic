@@ -1,6 +1,6 @@
 import logging
 from itertools import groupby
-import configresolver
+import config_resolver
 import rabbitmq_api_utils
 import exchanges_diagnostic
 import nodes_diagnostic
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Loading server configuration
-config = configresolver.ConfigResolver(logger)
+config = config_resolver.ConfigResolver(logger)
 server_config = config.load_server_config()
 
 rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['host'],

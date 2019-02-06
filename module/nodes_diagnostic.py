@@ -1,4 +1,3 @@
-
 class NodesDiagnostic:
 
     def __init__(self, logger):
