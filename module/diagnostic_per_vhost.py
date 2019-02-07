@@ -21,8 +21,8 @@ rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['host'],
 conditions = config.load_conditions_config()
 
 
-def create_report(file_name):
-    report = report_utils.ReportUtils(logger, 'report', file_name)
+def create_report(location, file_name):
+    report = report_utils.ReportUtils(logger, location, file_name)
     report.write_header('CONFIGURED CONDITIONS')
     for condition, value in conditions.items():
         report.write_line("- {} = {}\r\n".format(condition, value))
@@ -41,9 +41,12 @@ queues = list(rmq_utils.get_queues().json())
 vhost_queues = dict((k, list(g)) for k, g in groupby(queues, lambda queue: queue['vhost']))
 queues_diagnostic = queues_diagnostic.QueuesDiagnostic(logger)
 
+report_config = config.load_report_config()
+
 # Checking queues metrics
 for vhost, queues in vhost_queues.items():
-    report = create_report('diagnostic{}.txt'.format(vhost.replace('/', '-')))
+    file_name = '{}{}.txt'.format(report_config['vhost-report'], vhost.replace('/', '-'))
+    report = create_report(report_config['location'], file_name)
     report.write_item_header('VHOST: {}'.format(vhost))
 
     report.write_header('EXCHANGES PERFOMANCE METRICS')

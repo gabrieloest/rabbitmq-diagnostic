@@ -1,4 +1,4 @@
-repoort:
+report:
     location: report
-    general-report: diagnostic
-    vhost-report: diagnostic
+    general-report: general-report
+    vhost-report: vhost

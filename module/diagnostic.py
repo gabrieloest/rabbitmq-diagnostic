@@ -18,7 +18,9 @@ rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['host'],
                                                 server_config['user'],
                                                 server_config['password'])
 
-report = report_utils.ReportUtils(logger, 'report', 'diagnostic.txt')
+report_config = config.load_report_config()
+file_name = '{}.txt'.format(report_config['general-report'])
+report = report_utils.ReportUtils(logger, report_config['location'], file_name)
 
 # Loading performance metrics conditions
 conditions = config.load_conditions_config()

@@ -71,3 +71,23 @@ class ConfigResolver:
         conditions['consumers_connected'] = queue['consumers_connected']
 
         return conditions
+
+    def load_report_config(self):
+        self.log.info('Loading report configurations....')
+        with open("./config/report-config.yml", 'r') as ymlfile:
+            server_config = yaml.load(ymlfile)
+
+        report = server_config['report']
+        location = report['location']
+        self.log.info('location: {}'.format(location))
+        general_report = report['general-report']
+        self.log.info('general-report: {}'.format(general_report))
+        vhost_report = report['vhost-report']
+        self.log.info('vhost-report: {}'.format(vhost_report))
+
+        report_config = dict()
+        report_config['location'] = location
+        report_config['general-report'] = general_report
+        report_config['vhost-report'] = vhost_report
+
+        return report_config
