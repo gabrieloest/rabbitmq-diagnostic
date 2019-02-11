@@ -9,10 +9,10 @@ class RabbitmqAPIUtils:
 
     headers = {'Content-type': 'application/json'}
 
-    def __init__(self, host, user, password):
+    def __init__(self, protocol, host, user, password):
         self.user = user
         self.password = password
-        self.url = 'http://{}/api/'.format(host)
+        self.url = '{}://{}/api/'.format(protocol, host)
 
     def get_nodes(self):
         url_method = self.url

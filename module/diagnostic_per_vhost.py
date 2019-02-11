@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 config = config_resolver.ConfigResolver(logger)
 server_config = config.load_server_config()
 
-rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['host'],
+rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['protocol'],
+                                                server_config['host'],
                                                 server_config['user'],
                                                 server_config['password'])
 

@@ -1,10 +1,10 @@
 # RabbitMQ Diagnostic Report
 
 ## About the project
-The objective of this project is generate a "Diagnostic Report" based on performance metrics. You can choose between two types of reports: 
+The objective of this project is generate a "Diagnostic Report" based on performance metrics. You can choose between two types of reports:
   * General Report - This will generate a report with information's about all the vhost's and nodes
   * Report per vhost - That one, will create a report file for each vhost
-  
+
 ## Performance metrics
 
 ### Exchange metrics
@@ -12,7 +12,7 @@ The objective of this project is generate a "Diagnostic Report" based on perform
   1. Messages published in
   2. Messages published out
   3. Messages unroutable
-  
+
 ### Node metrics
   RabbitMQ runs inside an Erlang runtime system called a node. For this reason the node is the primary reference point for observing the resource use of your RabbitMQ setup.
   When use of certain resources reaches a threshold, RabbitMQ triggers an alarm and blocks connections. For this reason, monitoring resource use across your RabbitMQ system is necessary for ensuring availability.
@@ -20,11 +20,11 @@ The objective of this project is generate a "Diagnostic Report" based on perform
   2. File descriptors used as sockets
   3. Disk space used
   4. Memory used
-  
+
 ### Connection metrics
   Any traffic in RabbitMQ flows through a TCP connection. Messages in RabbitMQ implement the structure of the AMQP frame: a set of headers for attributes like content type and routing key, as well as a binary payload that contains the content of the message. RabbitMQ is well suited for a distributed network, and even single-machine setups work through local TCP connections. Like monitoring exchanges, monitoring your connections helps you understand your application’s messaging traffic. While exchange-level metrics are observable in terms of RabbitMQ-specific abstractions such as message rates, connection-level metrics are reported in terms of computational resources.
   1. Data rates
-  
+
 ### Queue metrics
   Queues receive, push, and store messages. After the exchange, the queue is a message’s final stop within the RabbitMQ server before it reaches your application. In addition to observing your exchanges, then, you will want to monitor your queues. Since the message is the top-level unit of work in RabbitMQ, monitoring queue traffic is one way of measuring your application’s throughput and performance.
   1. Queue depth
@@ -40,6 +40,7 @@ The objective of this project is generate a "Diagnostic Report" based on perform
 1. Create file `config/server-config.yml` with the following content:
 ```
 rabbitmq:
+  protocol:
   host:
   user:
   password:
@@ -79,7 +80,7 @@ conditions:
         consumers_connected: 1
 
 ```
-4. Change values of the fields of the `config/report-config.yml` to generate the reports in a different location and/or with a different name. 
+4. Change values of the fields of the `config/report-config.yml` to generate the reports in a different location and/or with a different name.
 * For the "general report", file generated will be `{report.location}/{report.general-report}.txt`
 * For the "report per vhost", files generated will be `{report.location}/{report.vhost-report}{vhost name}.txt`, replacing the slash("/") to hyphen("-") in the vhost name
 ```

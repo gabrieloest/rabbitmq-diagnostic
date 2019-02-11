@@ -1,7 +1,8 @@
 import yaml
 
-SERVER_CONFIG_PATH = "/config/server-config.yml"
-CONDITIONS_CONFIG_PATH = "/config/conditions-config.yml"
+SERVER_CONFIG_PATH = "./config/server-config.yml"
+CONDITIONS_CONFIG_PATH = "./config/conditions-config.yml"
+REPORTS_CONFIG_PATH = "./config/report-config.yml"
 
 
 class ConfigResolver:
@@ -9,25 +10,19 @@ class ConfigResolver:
     def __init__(self, logger):
         self.log = logger
 
+    def log_configurations(self, configurations):
+        for key, value in configurations.items():
+            self.log.info('{}: {}'.format(key, value))
+
     def load_server_config(self):
         self.log.info('Loading server configurations....')
-        with open("./config/server-config.yml", 'r') as ymlfile:
+        with open(SERVER_CONFIG_PATH, 'r') as ymlfile:
             server_config = yaml.load(ymlfile)
 
         rabbitmq = server_config['rabbitmq']
-        host = rabbitmq['host']
-        self.log.info('host: {}'.format(host))
-        user = rabbitmq['user']
-        self.log.info('user: {}'.format(user))
-        password = rabbitmq['password']
-        self.log.info('password: {}'.format(password))
+        self.log_configurations(rabbitmq)
 
-        server = dict()
-        server['host'] = host
-        server['user'] = user
-        server['password'] = password
-
-        return server
+        return rabbitmq
 
     def load_conditions_config(self):
         self.log.info('Loading conditions configurations....')
@@ -74,20 +69,10 @@ class ConfigResolver:
 
     def load_report_config(self):
         self.log.info('Loading report configurations....')
-        with open("./config/report-config.yml", 'r') as ymlfile:
+        with open(REPORTS_CONFIG_PATH, 'r') as ymlfile:
             server_config = yaml.load(ymlfile)
 
         report = server_config['report']
-        location = report['location']
-        self.log.info('location: {}'.format(location))
-        general_report = report['general-report']
-        self.log.info('general-report: {}'.format(general_report))
-        vhost_report = report['vhost-report']
-        self.log.info('vhost-report: {}'.format(vhost_report))
+        self.log_configurations(report)
 
-        report_config = dict()
-        report_config['location'] = location
-        report_config['general-report'] = general_report
-        report_config['vhost-report'] = vhost_report
-
-        return report_config
+        return report
