@@ -19,7 +19,7 @@ rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['protocol'],
                                                 server_config['password'])
 
 # Loading performance metrics conditions
-conditions = config.load_conditions_config()
+conditions = config.load_metrics_config()
 
 
 def create_report(location, file_name):
@@ -44,6 +44,8 @@ queues_diagnostic = queues_diagnostic.QueuesDiagnostic(logger)
 
 report_config = config.load_report_config()
 
+queues_config = config.load_queues_config()
+
 # Checking queues metrics
 for vhost, queues in vhost_queues.items():
     file_name = '{}{}.txt'.format(report_config['vhost-report'], vhost.replace('/', '-'))
@@ -59,7 +61,7 @@ for vhost, queues in vhost_queues.items():
 
     report.write_header('PERFOMANCE METRICS')
     queues = list(queues)
-    report.write_line(queues_diagnostic.no_consumers_queues_report(queues, conditions))
-    report.write_line(queues_diagnostic.high_ready_messages_queues(queues, conditions))
-    report.write_line(queues_diagnostic.high_messages_unacknowledged_queues(queues, conditions))
+    report.write_line(queues_diagnostic.no_consumers_queues_report(queues, queues_config))
+    report.write_line(queues_diagnostic.high_ready_messages_queues(queues, queues_config))
+    report.write_line(queues_diagnostic.high_messages_unacknowledged_queues(queues, queues_config))
     report.close()
