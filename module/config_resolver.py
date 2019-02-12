@@ -24,7 +24,52 @@ class ConfigResolver:
 
         return rabbitmq
 
-    def load_conditions_config(self):
+    def load_metrics_config(self):
+        self.log.info('Loading exchanges configurations....')
+        with open("./config/conditions-config.yml", 'r') as ymlfile:
+            server_config = yaml.load(ymlfile)
+
+        return server_config['conditions']
+
+    def load_exchanges_config(self):
+        metrics = self.load_metrics_config()
+        self.log.info('Loading exchanges configurations....')
+        exchange = metrics['exchange']
+
+        return exchange
+
+    def load_nodes_config(self):
+        metrics = self.load_metrics_config()
+        self.log.info('Loading nodes configurations....')
+        node = metrics['node']
+
+        return node
+
+    def load_connections_config(self):
+        metrics = self.load_metrics_config()
+        self.log.info('Loading connections configurations....')
+        connection = metrics['connection']
+
+        return connection
+
+    def load_queues_config(self):
+        metrics = self.load_metrics_config()
+        self.log.info('Loading queues configurations....')
+        queue = metrics['queue']
+
+        return queue
+
+    def load_report_config(self):
+        self.log.info('Loading report configurations....')
+        with open(REPORTS_CONFIG_PATH, 'r') as ymlfile:
+            server_config = yaml.load(ymlfile)
+
+        report = server_config['report']
+        self.log_configurations(report)
+
+        return report
+
+"""    def load_metrics_config(self):
         self.log.info('Loading conditions configurations....')
         with open("./config/conditions-config.yml", 'r') as ymlfile:
             server_config = yaml.load(ymlfile)
@@ -65,14 +110,4 @@ class ConfigResolver:
         conditions['messages_bytes_ram'] = queue['messages_bytes_ram']
         conditions['consumers_connected'] = queue['consumers_connected']
 
-        return conditions
-
-    def load_report_config(self):
-        self.log.info('Loading report configurations....')
-        with open(REPORTS_CONFIG_PATH, 'r') as ymlfile:
-            server_config = yaml.load(ymlfile)
-
-        report = server_config['report']
-        self.log_configurations(report)
-
-        return report
+        return conditions"""

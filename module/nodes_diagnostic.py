@@ -23,8 +23,8 @@ class NodesDiagnostic:
         fd_result = 'File Descriptors Alert'
 
         return self.check_alert(fd_used, fd_total,
-                                conditions['file_descriptors_used_warn'],
-                                conditions['file_descriptors_used_critical'],
+                                conditions['file_descriptors_used_percent_warn'],
+                                conditions['file_descriptors_used_percent_critical'],
                                 fd_result)
 
     def alert_files_description_as_sockets(self, node, conditions):
@@ -33,8 +33,8 @@ class NodesDiagnostic:
         sd_result = 'File Descriptors as Sockets Alert'
 
         return self.check_alert(sd_used, sd_total,
-                                conditions['file_descriptors_used_as_sockets_warn'],
-                                conditions['file_descriptors_used_as_sockets_critical'],
+                                conditions['file_descriptors_used_as_sockets_percent_warn'],
+                                conditions['file_descriptors_used_as_sockets_percent_critical'],
                                 sd_result)
 
     def alert_disk_free(self, node, conditions):
@@ -60,8 +60,8 @@ class NodesDiagnostic:
         mem_result = 'Mem Free Alert'
 
         return self.check_alert(mem_used, mem_limit,
-                                conditions['memory_used_warn'],
-                                conditions['memory_used_critical'],
+                                conditions['memory_used_percent_warn'],
+                                conditions['memory_used_percent_critical'],
                                 mem_result)
 
     def alert_erlang_process(self, node, conditions):
@@ -70,6 +70,6 @@ class NodesDiagnostic:
         proc_result = 'Erlang processes used Alert '
 
         return self.check_alert(proc_used, proc_total,
-                                conditions['erlang_process_warn'],
-                                conditions['erlang_process_critical'],
+                                conditions['erlang_process_percent_warn'],
+                                conditions['erlang_process_percent_critical'],
                                 proc_result)
