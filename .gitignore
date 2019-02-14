@@ -1,6 +1,8 @@
 config/server-config.yml
 report/*
 
+.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
