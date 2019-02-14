@@ -16,6 +16,7 @@ server_config = config.load_server_config()
 
 rmq_utils = rabbitmq_api_utils.RabbitmqAPIUtils(server_config['protocol'],
                                                 server_config['host'],
+                                                server_config['http-port'],
                                                 server_config['user'],
                                                 server_config['password'])
 
@@ -38,7 +39,7 @@ exchanges = list(rmq_utils.get_exchanges().json())
 
 exchanges_diagnostic = exchanges_diagnostic.ExchangesDiagnostic(logger)
 
-vhost_exchanges = groupby(exchanges, lambda exchange: exchange['vhost'])
+vhost_exchanges = groupby(exchanges, lambda exchange: exchange['vhost'].replace("/", "%2f"))
 report.write_header('EXCHANGES PERFOMANCE METRICS')
 for vhost, exchanges in vhost_exchanges:
     report.write_item_header('VHOST: {}'.format(vhost))
@@ -52,7 +53,7 @@ for vhost, exchanges in vhost_exchanges:
 # Consulting queues information
 queues = list(rmq_utils.get_queues().json())
 
-vhost_queues = groupby(queues, lambda queue: queue['vhost'])
+vhost_queues = groupby(queues, lambda queue: queue['vhost'].replace("/", "%2f"))
 queues_diagnostic = queues_diagnostic.QueuesDiagnostic(logger)
 
 queues_config = config.load_queues_config()

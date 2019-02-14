@@ -42,6 +42,8 @@ The objective of this project is generate a "Diagnostic Report" based on perform
 rabbitmq:
   protocol:
   host:
+  amqp-port:
+  http-port:
   user:
   password:
 ```
